@@ -2,6 +2,7 @@ package dscBotUpdated;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import java.awt.Color;
@@ -41,20 +42,19 @@ public class SlashCommandHandler {
 			embedHelp.setColor(embedColor);
 			embedHelp.setTitle("Список команд");
 			embedHelp.setDescription("**/ping** - ответит \"Pong!\"\n" + "**/serverinfo** - информация о сервере\n"
-					+ "**/avatar** - аватар участника сервера\n" + "**/clear** - очистка сообщений");
+					+ "**/avatar** - аватар пользователя\n" + "**/clear** - очистка сообщений на сервере");
 			embedHelp.setFooter("Футер Embed-сообщения: " + event.getUser().getEffectiveName(), event.getUser().getAvatarUrl());
 			event.replyEmbeds(embedHelp.build()).queue();
 			break;
 		case "avatar":
-		    Member member = event.getOption("user").getAsMember();
+			User user = event.getOption("user").getAsUser();
+			if (user == null) {
+			    event.reply("❌ Пользователь не найден.").setEphemeral(true).queue();
+			    return;
+			}
 
-		    if (member == null) {
-		        event.reply("❌ Участник не найден на сервере.").setEphemeral(true).queue();
-		        return;
-		    }
-
-		    String avatarUrl = member.getUser().getEffectiveAvatarUrl();
-		    String displayName = member.getEffectiveName();
+			String avatarUrl = user.getEffectiveAvatarUrl();
+			String displayName = user.getName();
 
 		    EmbedBuilder embed = new EmbedBuilder()
 		            .setColor(new Color(139, 0, 0))
@@ -65,7 +65,13 @@ public class SlashCommandHandler {
 		    event.replyEmbeds(embed.build()).queue();
 		    break;
 		case "clear":
-		    if (!event.getMember().hasPermission(net.dv8tion.jda.api.Permission.MESSAGE_MANAGE)) {
+		    
+			if (!event.isFromGuild()) {
+			    event.reply("❌ Эта команда недоступна в личных сообщениях.").setEphemeral(true).queue();
+			    return;
+			}
+			
+			if (!event.getMember().hasPermission(net.dv8tion.jda.api.Permission.MESSAGE_MANAGE)) {
 		        EmbedBuilder noPermEmbed = new EmbedBuilder()
 		            .setColor(new Color(139, 0, 0))
 		            .setDescription(":x: Вы не имеете права удалять сообщения!");

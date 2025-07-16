@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 public class DscBot {
 	public static void main(String[] args) throws LoginException {
-		JDABuilder jda = JDABuilder.create("TOKEN",
+		JDABuilder jda = JDABuilder.create("BOT_TOKEN",
 
 				GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES,
 				GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MEMBERS
