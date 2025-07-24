@@ -13,12 +13,12 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 public class DscBot {
 	public static void main(String[] args) throws LoginException {
+		
 		JDABuilder jda = JDABuilder.create("TOKEN",
-
-				GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGES,
-				GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MEMBERS
-
+				GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES,
+				GatewayIntent.MESSAGE_CONTENT
 		).disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS);
+		
 		jda.setActivity(Activity.playing("/help"));
 		jda.setStatus(OnlineStatus.ONLINE);
 		jda.addEventListeners(new InteractionEventListener());
@@ -32,6 +32,8 @@ public class DscBot {
 				Commands.slash("avatar", "Отображает аватар пользователя")
 		        .addOption(OptionType.USER, "user", "Упомянутый пользователь", true),
 		        Commands.slash("clear", "Удаляет указанное количество сообщений")
-		        .addOption(OptionType.INTEGER, "amount", "Количество сообщений для удаления", true)).queue();
+		        .addOption(OptionType.INTEGER, "amount", "Количество сообщений для удаления", true),
+		        Commands.slash("roleinfo", "Показывает информацию о роли")
+		        .addOption(OptionType.ROLE, "role", "Указанная роль", true)).queue();
 	}
 }

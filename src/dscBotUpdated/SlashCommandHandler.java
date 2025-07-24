@@ -1,10 +1,18 @@
 package dscBotUpdated;
 
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+
 import java.awt.Color;
+import java.util.Comparator;
+import java.util.EnumSet;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class SlashCommandHandler {
 
@@ -47,7 +55,8 @@ public class SlashCommandHandler {
 				"**/ping** - ответит \"Pong!\"\n" +
 				"**/serverinfo** - отображает информацию о сервере\n" +
 				"**/avatar** - отображает аватар пользователя\n" + 
-				"**/clear** - удаляет указанное количество сообщений";
+				"**/clear** - удаляет указанное количество сообщений\n" +
+				"**/roleinfo** - показывает информацию о роли";
 			
 			EmbedBuilder embedHelp = new EmbedBuilder()
 				.setColor(new Color(139, 0, 0))
@@ -118,6 +127,46 @@ public class SlashCommandHandler {
 						.setDescription(":x: Не удалось удалить сообщения.");
 				event.replyEmbeds(errorEmbed.build()).setEphemeral(true).queue();
 			});
+			break;
+		
+		case "roleinfo":
+			Role role = event.getOption("role").getAsRole();
+
+			if (role == null) {
+				EmbedBuilder roleMissing = new EmbedBuilder()
+					.setColor(new Color(139, 0, 0))
+					.setDescription(":x: Роль не найдена.");
+				event.replyEmbeds(roleMissing.build()).setEphemeral(true).queue();
+				return;
+			}
+
+			EnumSet<Permission> permissions = role.getPermissions();
+			StringBuilder permsBuilder = new StringBuilder();
+
+			if (permissions.isEmpty()) {
+				permsBuilder.append("Нет прав.");
+			} else {
+				List<String> permNames = permissions.stream()
+				        .sorted(Comparator.comparing(Permission::getName))
+				        .map(Permission::getName)
+				        .collect(Collectors.toList());
+
+				    permsBuilder.append(String.join("\n• ", permNames));
+				    permsBuilder.insert(0, "• ");
+			}
+
+			EmbedBuilder embedRole = new EmbedBuilder()
+				.setColor(role.getColor() != null ? role.getColor() : new Color(139, 0, 0))
+				.setTitle("Информация о роли «" + role.getName() + "»")
+				.addField("Права:", permsBuilder.toString(), false)
+				.addField("Участников с ролью:", String.valueOf(event.getGuild().getMembersWithRoles(role).size()), true)
+				.addField("Цвет:", role.getColor() != null
+				? "#" + Integer.toHexString(role.getColor().getRGB()).substring(2).toUpperCase()
+				: "Нет", true)
+				.addField("ID:", role.getId(), true)
+				.setFooter("Футер Embed-сообщения", event.getUser().getAvatarUrl());
+
+			event.replyEmbeds(embedRole.build()).queue();
 			break;
 		}
 	}
